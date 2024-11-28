@@ -20,12 +20,13 @@ app.get('/webhook', (req, res) => {
 
     if (mode && token) {
         if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+            console.log('Webhook Verified');
             res.status(200).send(challenge);
         } else {
-            res.sendStatus(403);
+            res.sendStatus(403).send('Forbidden');;
         }
     } else {
-        res.sendStatus(400);
+        res.sendStatus(400).send('Bad Request');
     }
 });
 
