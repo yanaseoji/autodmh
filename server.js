@@ -1,12 +1,18 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const app = express();
 app.use(bodyParser.json());
 
-// Webhook Verification (for Meta)
+// Default Route
+app.get('/', (req, res) => {
+    res.status(200).send('Server is running successfully!');
+});
+
+// Webhook Route
 app.get('/webhook', (req, res) => {
-    const VERIFY_TOKEN = "your_verify_token"; // Replace with your verify token
+    const VERIFY_TOKEN = "autodmtoken"; // Replace with your token
 
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
@@ -14,34 +20,22 @@ app.get('/webhook', (req, res) => {
 
     if (mode && token) {
         if (mode === 'subscribe' && token === VERIFY_TOKEN) {
-            console.log('Webhook verified successfully.');
             res.status(200).send(challenge);
         } else {
-            res.status(403).send('Verification failed.');
+            res.sendStatus(403);
         }
+    } else {
+        res.sendStatus(400);
     }
 });
 
-// Webhook Event Handling
-app.post('/webhook', (req, res) => {
-    const body = req.body;
-
-    if (body.object === 'instagram') {
-        body.entry.forEach(entry => {
-            const changes = entry.changes;
-            changes.forEach(change => {
-                console.log('Received Event:', change);
-                // Add your logic here (e.g., sending Auto DM)
-            });
-        });
-        res.status(200).send('EVENT_RECEIVED');
-    } else {
-        res.sendStatus(404);
-    }
+// Privacy Policy Route
+app.get('/privacy-policy', (req, res) => {
+    res.sendFile(path.join(__dirname, 'privacy-policy.html')); // Serve the privacy policy HTML file
 });
 
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
