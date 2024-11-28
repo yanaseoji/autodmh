@@ -1,0 +1,39 @@
+# Node.js specific
+node_modules/
+npm-debug.log
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Environment variables
+.env
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory
+coverage/
+
+# Dependency directories
+jspm_packages/
+
+# IDE-specific files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Build directories
+dist/
+build/
+
+# Render/Hosting specific
+tmp/
+.cache/
