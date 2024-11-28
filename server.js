@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 const app = express();
+
 app.use(bodyParser.json());
 
 // Default Route
@@ -29,6 +30,15 @@ app.get('/webhook', (req, res) => {
         res.sendStatus(400).send('Bad Request');
     }
 });
+
+// POST route to handle Webhook events
+app.post('/webhook', (req, res) => {
+    console.log('Received Webhook Event:', req.body);
+
+    // Respond with HTTP 200 status to acknowledge receipt
+    res.status(200).send('EVENT_RECEIVED');
+});
+
 
 // Privacy Policy Route
 app.get('/privacy-policy', (req, res) => {
