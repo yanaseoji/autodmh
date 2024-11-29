@@ -114,6 +114,7 @@ async function sendDirectMessage(userId, message) {
         console.log('DM Sent Response:', response.data);
     } catch (error) {
         console.error('Error Sending DM:', error.response?.data || error.message);
+        console.error('Error Status Code:', error.response?.status || 'Unknown');
         throw new Error(error.response?.data || error.message);
     }
 }
