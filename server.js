@@ -118,7 +118,7 @@ app.post('/webhook', async (req, res) => {
 
 // Function to Send a Direct Message
 async function sendDirectMessage(userId, message) {
-  const apiUrl = `https://graph.facebook.com/v17.0/${userId}/messages`;
+  const apiUrl = `https://graph.facebook.com/v21.0/${userId}/messages`;
 
   try {
     console.log(`Sending message to User ID: ${userId}`);
