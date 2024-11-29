@@ -5,7 +5,7 @@ const axios = require("axios");
 
 const app = express();
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "autodmtoken"; // Use environment variables for security
-const ACCESS_TOKEN = process.env.ACCESS_TOKEN || "YOUR_LONG_LIVED_ACCESS_TOKEN"; // Use environment variables
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN || "IGQWRNcDVkZA3FEcEhiVE1XdlR1YTg0Y3NWNUJRaW1peWZARSDRkV1JsT3g5TVFUVG1wbnNuV00yVVhRR0laY0IzRnMtb0c2aGRBblpqcjE2XzVETXRxbjBqYzV3UnBOYWZANZAWtTNjdKSGprZA19xdjBKSEF2eWtPTUUZD"; // Use environment variables
 
 app.use(bodyParser.json());
 
@@ -93,7 +93,7 @@ app.post("/webhook", async (req, res) => {
 
 // Function to Send a Direct Message
 async function sendDirectMessage(userId, message) {
-  const apiUrl = "https://graph.facebook.com/v17.0/me/messages";
+  const apiUrl = "https://graph.facebook.com/v17.0//messages";
 
   try {
     console.log(`Sending message to User ID: ${userId}`);
