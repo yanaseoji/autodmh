@@ -5,7 +5,7 @@ const axios = require("axios");
 
 const app = express();
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "autodmtoken"; // Use environment variables for security
-const ACCESS_TOKEN = process.env.ACCESS_TOKEN || "IGQWRPQ1F5alloc1NneDF0Y1NDMlVsUTJHRGtHVkhWZA2RkdllqMGRvb09uemxCdC01c0ppeGFzOHYzWm9uUkQ2SHdZAdXhlQWs2WWs1Vjl3WU01ellUaWRyTVRRMWFtdUhwOXFCT1RocTZAxREd4ZAU1jMWdjNXVoaFEZD"; // Use environment variables
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN || "IGQWRPQ1F5alloc1NneDF0Y1NDMlVsUTJHRGtHVkhWZA2RkdllqMGRvb09uemxCdC01c0ppeGFzOHYzWm9uUkQ2SHdZAdXhlQWs2WWs1Vjl3WU01ellUaWRyTVRRMWFtdUhwOXFCT1RocTZAxREd4ZAU1jMWdjNXVoaFEZD"; // Replace with a valid long-lived access token
 
 app.use(bodyParser.json());
 
@@ -34,21 +34,9 @@ app.get("/webhook", (req, res) => {
   }
 });
 
-// Callback Route for Business Login
-app.get("/callback", (req, res) => {
-  const code = req.query.code; // Extract the 'code' from the query parameters
-  if (code) {
-    console.log(`Business login successful. Code: ${code}`);
-    res.status(200).send("Business login successful!");
-  } else {
-    console.error("No code provided in the callback.");
-    res.status(400).send("No code provided");
-  }
-});
-
 // Webhook Event Handling Route
 app.post("/webhook", async (req, res) => {
-  const body = req.body; //newcode
+  const body = req.body;
 
   try {
     if (body.object === "instagram") {
@@ -66,7 +54,11 @@ app.post("/webhook", async (req, res) => {
                 if (commentText === "yana") {
                   const message = "Test is completed";
                   console.log(`Sending message to commenter: ${commenterId}`);
-                  await sendDirectMessage(commenterId, message);
+                  try {
+                    await sendDirectMessage(commenterId, message);
+                  } catch (err) {
+                    console.error(`Failed to send DM to ${commenterId}:`, err.message);
+                  }
                 } else {
                   console.log(`Comment does not contain 'yana'. Skipping DM.`);
                 }
@@ -93,10 +85,14 @@ app.post("/webhook", async (req, res) => {
 
 // Function to Send a Direct Message
 async function sendDirectMessage(userId, message) {
-  const apiUrl = `https://graph.facebook.com/v17.0/${userId}/messages`;
+  const apiUrl = "https://graph.facebook.com/v17.0/me/messages"; // Correct endpoint
 
   try {
     console.log(`Sending message to User ID: ${userId}`);
+    if (!userId) {
+      throw new Error("Invalid User ID. Cannot send message.");
+    }
+
     const response = await axios.post(
       apiUrl,
       {
@@ -113,7 +109,9 @@ async function sendDirectMessage(userId, message) {
     console.log("DM Sent Response:", response.data);
   } catch (error) {
     console.error("Error Sending DM:", error.response?.data || error.message);
-    console.error("Error Status Code:", error.response?.status || "Unknown");
+    if (error.response?.data?.error?.message) {
+      console.error("Graph API Error:", error.response.data.error.message);
+    }
     throw new Error(error.response?.data || error.message);
   }
 }
