@@ -46,31 +46,47 @@ app.get('/callback', (req, res) => {
 app.post('/webhook', async (req, res) => {
     const body = req.body;
 
-    if (body.object === 'instagram') {
-        body.entry.forEach(async (entry) => {
-            const changes = entry.changes;
+    try {
+        if (body.object === 'instagram') {
+            if (Array.isArray(body.entry)) {
+                body.entry.forEach(async (entry) => {
+                    if (entry && Array.isArray(entry.changes)) {
+                        entry.changes.forEach(async (change) => {
+                            if (change.field === 'comments' && change.value) {
+                                console.log('New Comment:', change.value);
 
-            changes.forEach(async (change) => {
-                if (change.field === 'comments') {
-                    console.log('New Comment:', change.value);
+                                const commenterId = change.value.from?.id; // Safely access commenter ID
+                                const commentText = change.value.text?.toLowerCase(); // Safely access and normalize comment text
 
-                    const commenterId = change.value.from.id; // User ID of the commenter
-
-                    // Send the "test is complete" message
-                    try {
-                        const message = "test is complete";
-                        await sendDirectMessage(commenterId, message);
-                        console.log(`Message sent to user ID ${commenterId}`);
-                    } catch (error) {
-                        console.error('Error sending DM:', error.response?.data || error.message);
+                                // Check if the comment contains "yana"
+                                if (commentText === "yana"||"Yana") {
+                                    try {
+                                        const message = "test is completed";
+                                        await sendDirectMessage(commenterId, message);
+                                        console.log(`Message sent to user ID ${commenterId}`);
+                                    } catch (error) {
+                                        console.error('Error sending DM:', error.response?.data || error.message);
+                                    }
+                                } else {
+                                    console.log(`Comment does not contain "yana". Skipping DM.`);
+                                }
+                            }
+                        });
+                    } else {
+                        console.warn('Changes array is missing or invalid in the entry:', entry);
                     }
-                }
-            });
-        });
+                });
+            } else {
+                console.warn('Entry array is missing or invalid in the payload:', body);
+            }
 
-        res.status(200).send('EVENT_RECEIVED');
-    } else {
-        res.sendStatus(404); // Event not from Instagram
+            res.status(200).send('EVENT_RECEIVED');
+        } else {
+            res.status(404).send('Not an Instagram event');
+        }
+    } catch (error) {
+        console.error('Unhandled Error:', error.message, error.stack);
+        res.status(500).send('Internal Server Error');
     }
 });
 
@@ -79,7 +95,8 @@ async function sendDirectMessage(userId, message) {
     const apiUrl = `https://graph.facebook.com/v17.0/${userId}/messages`;
 
     try {
-        await axios.post(
+        console.log(`Sending message to User ID: ${userId}`);
+        const response = await axios.post(
             apiUrl,
             {
                 recipient: { id: userId },
@@ -92,7 +109,9 @@ async function sendDirectMessage(userId, message) {
                 },
             }
         );
+        console.log('DM Sent Response:', response.data);
     } catch (error) {
+        console.error('Error Sending DM:', error.response?.data || error.message);
         throw new Error(error.response?.data || error.message);
     }
 }
