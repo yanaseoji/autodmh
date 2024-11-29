@@ -29,6 +29,15 @@ app.get('/webhook', (req, res) => {
         res.sendStatus(400); // Bad Request
     }
 });
+app.get('/callback', (req, res) => {
+    const code = req.query.code; // Extract the 'code' from the query parameters
+    if (code) {
+        // Exchange the code for an access token
+        res.status(200).send('Business login successful!');
+    } else {
+        res.status(400).send('No code provided');
+    }
+});
 
 // Webhook Event Handling Route
 app.post('/webhook', (req, res) => {
