@@ -1,3 +1,5 @@
+const https = require('https'); // Import HTTPS module
+const fs = require('fs'); // Import File System module
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -5,7 +7,14 @@ const axios = require('axios'); // Add axios for API requests
 
 const app = express();
 const VERIFY_TOKEN = "autodmtoken"; // Your webhook verification token
-const ACCESS_TOKEN = "IGQWRNeEtIb0lfbWN3WEFsa0F0cDN5ZA3pFLWxWZAmFYNFZAzb2dCNTZA2SHBzNjZAYdU8wMlZAPOFY3SUZAEN1g1cWRaUTdhVS1uSUVkSWNSOThnUUJMZAEJtUW16bG5zNnZApOS1qalhqLXRrWnVucE1KNlVGVDJLZAHFYeG8ZD"; // Your Instagram long-lived access token
+const ACCESS_TOKEN = "IGQWRNeEtIb0lfbWN3WEFsa0F0cDN5ZA3pFLWxWZAmFYNFZAzb2dCNTZA2SHBzNjZAYdU8wMlZAPOFY3SUZAEN1g1cWRaUTdhVS1uSUVkSWNSOThnUUJMZAEJtUW16bG5zNnZApOS1qalhqLXRrWnVucE1KNlVGVDJLZAHFYeG8ZD"; // Replace with your valid token
+
+// Load SSL Certificates
+const privateKey = fs.readFileSync('path/to/your/private.key', 'utf8');
+const certificate = fs.readFileSync('path/to/your/certificate.crt', 'utf8');
+const ca = fs.readFileSync('path/to/your/ca_bundle.crt', 'utf8');
+
+const credentials = { key: privateKey, cert: certificate, ca: ca };
 
 app.use(bodyParser.json());
 
@@ -34,7 +43,7 @@ app.get('/webhook', (req, res) => {
 
 // Callback Route for Business Login
 app.get('/callback', (req, res) => {
-    const code = req.query.code; // Extract the 'code' from the query parameters
+    const code = req.query.code;
     if (code) {
         res.status(200).send('Business login successful!');
     } else {
@@ -55,10 +64,9 @@ app.post('/webhook', async (req, res) => {
                             if (change.field === 'comments' && change.value) {
                                 console.log('New Comment:', change.value);
 
-                                const commenterId = change.value.from?.id; // Safely access commenter ID
-                                const commentText = change.value.text?.toLowerCase(); // Safely access and normalize comment text
+                                const commenterId = change.value.from?.id;
+                                const commentText = change.value.text?.toLowerCase();
 
-                                // Check if the comment contains "yana"
                                 if (commentText === "yana") {
                                     try {
                                         const message = "test is completed";
@@ -72,17 +80,12 @@ app.post('/webhook', async (req, res) => {
                                 }
                             }
                         });
-                    } else {
-                        console.warn('Changes array is missing or invalid in the entry:', entry);
                     }
                 });
-            } else {
-                console.warn('Entry array is missing or invalid in the payload:', body);
             }
-
             res.status(200).send('EVENT_RECEIVED');
         } else {
-            res.status(404).send('Not an Instagram event');
+            res.sendStatus(404);
         }
     } catch (error) {
         console.error('Unhandled Error:', error.message, error.stack);
@@ -118,13 +121,11 @@ async function sendDirectMessage(userId, message) {
 
 // Privacy Policy Route
 app.get('/privacy-policy', (req, res) => {
-    res.sendFile(path.join(__dirname, 'privacy-policy.html')); // Serve the privacy policy HTML file
+    res.sendFile(path.join(__dirname, 'privacy-policy.html'));
 });
 
-// Start the Server
+// Start HTTPS Server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+https.createServer(credentials, app).listen(PORT, () => {
+    console.log(`Secure server is running on https://localhost:${PORT}`);
 });
-
-module.exports = app;
