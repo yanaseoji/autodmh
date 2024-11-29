@@ -130,8 +130,9 @@ async function sendDirectMessage(userId, message) {
       },
       {
         headers: {
-          Authorization: `Bearer ${ACCESS_TOKEN}`,
-          "Content-Type": "application/json",
+            // Authorization: `Bearer ${ACCESS_TOKEN}`,
+             "Authorization": ACCESS_TOKEN,
+            "Content-Type": "application/json",
         },
       }
     );
