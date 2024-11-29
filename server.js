@@ -1,9 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const axios = require('axios'); // Add axios for API requests
 
 const app = express();
 const VERIFY_TOKEN = "autodmtoken"; // Hardcoded token value here
+const ACCESS_TOKEN = "IGQWRNeEtIb0lfbWN3WEFsa0F0cDN5ZA3pFLWxWZAmFYNFZAzb2dCNTZA2SHBzNjZAYdU8wMlZAPOFY3SUZAEN1g1cWRaUTdhVS1uSUVkSWNSOThnUUJMZAEJtUW16bG5zNnZApOS1qalhqLXRrWnVucE1KNlVGVDJLZAHFYeG8ZD"; // Replace with your Instagram long-lived access token
 
 app.use(bodyParser.json());
 
@@ -29,6 +31,8 @@ app.get('/webhook', (req, res) => {
         res.sendStatus(400); // Bad Request
     }
 });
+
+// Callback Route for Business Login
 app.get('/callback', (req, res) => {
     const code = req.query.code; // Extract the 'code' from the query parameters
     if (code) {
@@ -40,10 +44,55 @@ app.get('/callback', (req, res) => {
 });
 
 // Webhook Event Handling Route
-app.post('/webhook', (req, res) => {
-    console.log('Received Webhook Event:', req.body);
-    res.status(200).send('EVENT_RECEIVED'); // Acknowledge receipt of the event
+app.post('/webhook', async (req, res) => {
+    const body = req.body;
+
+    if (body.object === 'instagram') {
+        body.entry.forEach(async (entry) => {
+            const changes = entry.changes;
+
+            changes.forEach(async (change) => {
+                if (change.field === 'comments') {
+                    console.log('New Comment:', change.value);
+
+                    const commenterId = change.value.from.id; // User ID of the commenter
+                    const commentText = change.value.text; // Text of the comment
+
+                    // Auto-respond with a DM
+                    try {
+                        const message = `Hi, thank you for your comment: "${commentText}"`;
+                        await sendDirectMessage(commenterId, message);
+                    } catch (error) {
+                        console.error('Error sending DM:', error.response?.data || error.message);
+                    }
+                }
+            });
+        });
+
+        res.status(200).send('EVENT_RECEIVED');
+    } else {
+        res.sendStatus(404); // Event not from Instagram
+    }
 });
+
+// Function to Send a Direct Message
+async function sendDirectMessage(userId, message) {
+    const apiUrl = `https://graph.facebook.com/v17.0/${userId}/messages`;
+
+    await axios.post(
+        apiUrl,
+        {
+            recipient: { id: userId },
+            message: { text: message },
+        },
+        {
+            headers: {
+                Authorization: `Bearer ${ACCESS_TOKEN}`,
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+}
 
 // Privacy Policy Route
 app.get('/privacy-policy', (req, res) => {
