@@ -59,7 +59,7 @@ app.post('/webhook', async (req, res) => {
                                 const commentText = change.value.text?.toLowerCase(); // Safely access and normalize comment text
 
                                 // Check if the comment contains "yana"
-                                if (commentText === "yana"||"Yana") {
+                                if (commentText === "yana") {
                                     try {
                                         const message = "test is completed";
                                         await sendDirectMessage(commenterId, message);
