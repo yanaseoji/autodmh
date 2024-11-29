@@ -1,8 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
-const axios = require('axios');
-const https = require('https'); // For HTTPS agent
+const axios = require('axios'); // Add axios for API requests
 
 const app = express();
 const VERIFY_TOKEN = "autodmtoken"; // Your webhook verification token
@@ -79,11 +78,6 @@ app.post('/webhook', async (req, res) => {
 async function sendDirectMessage(userId, message) {
     const apiUrl = `https://graph.facebook.com/v17.0/${userId}/messages`;
 
-    // Create an HTTPS agent to handle SSL issues
-    const agent = new https.Agent({
-        rejectUnauthorized: false, // Temporary: Disable certificate validation (use only for debugging)
-    });
-
     try {
         await axios.post(
             apiUrl,
@@ -96,12 +90,9 @@ async function sendDirectMessage(userId, message) {
                     Authorization: `Bearer ${ACCESS_TOKEN}`,
                     'Content-Type': 'application/json',
                 },
-                httpsAgent: agent, // Use the HTTPS agent
             }
         );
     } catch (error) {
-        // Log detailed error information
-        console.error('Error Details:', error.response?.data || error.message);
         throw new Error(error.response?.data || error.message);
     }
 }
