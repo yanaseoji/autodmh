@@ -61,7 +61,7 @@ app.post('/webhook', async (req, res) => {
                                 // Check if the comment contains "yana"
                                 if (commentText === "yana") {
                                     try {
-                                        const message = "test is completed";
+                                       // const message = "test is completed";
                                         //console.log(message);
                                         
                                         await sendDirectMessage(commenterId, message);
@@ -71,7 +71,7 @@ app.post('/webhook', async (req, res) => {
                                     }
                                 } else {
                                     console.log(`Comment does not contain "yana". Skipping DM.`);
-                                }
+                                } 
                             }
                         });
                     } else {
