@@ -4,8 +4,8 @@ const path = require('path');
 const axios = require('axios'); // Add axios for API requests
 
 const app = express();
-const VERIFY_TOKEN = "autodmtoken"; // Hardcoded token value here
-const ACCESS_TOKEN = "IGQWRNeEtIb0lfbWN3WEFsa0F0cDN5ZA3pFLWxWZAmFYNFZAzb2dCNTZA2SHBzNjZAYdU8wMlZAPOFY3SUZAEN1g1cWRaUTdhVS1uSUVkSWNSOThnUUJMZAEJtUW16bG5zNnZApOS1qalhqLXRrWnVucE1KNlVGVDJLZAHFYeG8ZD"; // Replace with your Instagram long-lived access token
+const VERIFY_TOKEN = "autodmtoken"; // Your webhook verification token
+const ACCESS_TOKEN = "IGQWRNeEtIb0lfbWN3WEFsa0F0cDN5ZA3pFLWxWZAmFYNFZAzb2dCNTZA2SHBzNjZAYdU8wMlZAPOFY3SUZAEN1g1cWRaUTdhVS1uSUVkSWNSOThnUUJMZAEJtUW16bG5zNnZApOS1qalhqLXRrWnVucE1KNlVGVDJLZAHFYeG8ZD"; // Your Instagram long-lived access token
 
 app.use(bodyParser.json());
 
@@ -36,7 +36,6 @@ app.get('/webhook', (req, res) => {
 app.get('/callback', (req, res) => {
     const code = req.query.code; // Extract the 'code' from the query parameters
     if (code) {
-        // Exchange the code for an access token
         res.status(200).send('Business login successful!');
     } else {
         res.status(400).send('No code provided');
@@ -56,12 +55,12 @@ app.post('/webhook', async (req, res) => {
                     console.log('New Comment:', change.value);
 
                     const commenterId = change.value.from.id; // User ID of the commenter
-                    const commentText = change.value.text; // Text of the comment
 
-                    // Auto-respond with a DM
+                    // Send the "test is complete" message
                     try {
-                        const message = `Hi, thank you for your comment: "${commentText}"`;
+                        const message = "test is complete";
                         await sendDirectMessage(commenterId, message);
+                        console.log(`Message sent to user ID ${commenterId}`);
                     } catch (error) {
                         console.error('Error sending DM:', error.response?.data || error.message);
                     }
@@ -79,19 +78,23 @@ app.post('/webhook', async (req, res) => {
 async function sendDirectMessage(userId, message) {
     const apiUrl = `https://graph.facebook.com/v17.0/${userId}/messages`;
 
-    await axios.post(
-        apiUrl,
-        {
-            recipient: { id: userId },
-            message: { text: message },
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${ACCESS_TOKEN}`,
-                'Content-Type': 'application/json',
+    try {
+        await axios.post(
+            apiUrl,
+            {
+                recipient: { id: userId },
+                message: { text: message },
             },
-        }
-    );
+            {
+                headers: {
+                    Authorization: `Bearer ${ACCESS_TOKEN}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+    } catch (error) {
+        throw new Error(error.response?.data || error.message);
+    }
 }
 
 // Privacy Policy Route
