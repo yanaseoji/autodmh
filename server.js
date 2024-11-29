@@ -47,49 +47,74 @@ app.get("/callback", (req, res) => {
 });
 
 // Webhook Event Handling Route
-app.post("/webhook", async (req, res) => {
-  const body = req.body; //newcode
+app.post('/webhook', async (req, res) => {
+    const body = req.body;
 
-  try {
-    if (body.object === "instagram") {
-      if (Array.isArray(body.entry)) {
-        for (const entry of body.entry) {
-          if (entry && Array.isArray(entry.changes)) {
-            for (const change of entry.changes) {
-              if (change.field === "comments" && change.value) {
-                console.log("New Comment Received:", change.value);
+    try {
+        if (body.object === 'instagram') {
+            // Handle Instagram-related events
+            if (Array.isArray(body.entry)) {
+                body.entry.forEach(async (entry) => {
+                    if (entry.changes && Array.isArray(entry.changes)) {
+                        entry.changes.forEach(async (change) => {
+                            if (change.field === 'comments' && change.value) {
+                                console.log('New Instagram Comment:', change.value);
 
-                const commenterId = change.value.from?.id; // Safely access commenter ID
-                const commentText = change.value.text?.toLowerCase(); // Normalize comment text
+                                const commenterId = change.value.from?.id; // Safely access commenter ID
+                                const commentText = change.value.text?.toLowerCase(); // Normalize text
 
-                // Check if the comment contains "yana"
-                if (commentText === "yana") {
-                  const message = "Test is completed";
-                  console.log(`Sending message to commenter: ${commenterId}`);
-                  await sendDirectMessage(commenterId, message);
-                } else {
-                  console.log(`Comment does not contain 'yana'. Skipping DM.`);
-                }
-              }
+                                // Check if the comment contains "yana"
+                                if (commentText === "yana") {
+                                    try {
+                                        const message = "test is completed";
+                                        await sendDirectMessage(commenterId, message);
+                                        console.log(`Message sent to user ID ${commenterId}`);
+                                    } catch (error) {
+                                        console.error('Error sending DM:', error.response?.data || error.message);
+                                    }
+                                } else {
+                                    console.log(`Comment does not contain "yana". Skipping DM.`);
+                                }
+                            }
+                        });
+                    } else {
+                        console.warn('Changes array is missing or invalid in the entry:', entry);
+                    }
+                });
+            } else {
+                console.warn('Entry array is missing or invalid in the payload:', body);
             }
-          } else {
-            console.warn("Changes array is missing or invalid in the entry:", entry);
-          }
+            res.status(200).send('EVENT_RECEIVED');
+        } else if (body.object === 'page') {
+            // Handle Messenger-related events
+            if (Array.isArray(body.entry)) {
+                body.entry.forEach((entry) => {
+                    if (entry.messaging && Array.isArray(entry.messaging)) {
+                        entry.messaging.forEach((event) => {
+                            if (event.read) {
+                                console.log('Read Event:', event.read);
+                            } else if (event.message) {
+                                console.log('Message Event:', event.message);
+                            } else {
+                                console.log('Unhandled Messenger Event:', event);
+                            }
+                        });
+                    } else {
+                        console.warn('Messaging array is missing or invalid in the entry:', entry);
+                    }
+                });
+            }
+            res.status(200).send('EVENT_RECEIVED');
+        } else {
+            console.warn('Unhandled object type:', body.object);
+            res.status(404).send('Unhandled object type');
         }
-      } else {
-        console.warn("Entry array is missing or invalid in the payload:", body);
-      }
-
-      res.status(200).send("EVENT_RECEIVED");
-    } else {
-      console.warn("Not an Instagram event:", body);
-      res.status(404).send("Not an Instagram event");
+    } catch (error) {
+        console.error('Unhandled Error:', error.message, error.stack);
+        res.status(500).send('Internal Server Error');
     }
-  } catch (error) {
-    console.error("Unhandled error while processing webhook:", error.message, error.stack);
-    res.status(500).send("Internal Server Error");
-  }
 });
+
 
 // Function to Send a Direct Message
 async function sendDirectMessage(userId, message) {
