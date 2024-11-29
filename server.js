@@ -62,6 +62,8 @@ app.post('/webhook', async (req, res) => {
                                 if (commentText === "yana") {
                                     try {
                                         const message = "test is completed";
+                                        console.log(message);
+                                        
                                         await sendDirectMessage(commenterId, message);
                                         console.log(`Message sent to user ID ${commenterId}`);
                                     } catch (error) {
