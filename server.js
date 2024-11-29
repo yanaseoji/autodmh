@@ -62,30 +62,6 @@ app.post("/webhook", async (req, res) => {
                 const commenterId = change.value.from?.id; // Safely access commenter ID
                 const commentText = change.value.text?.toLowerCase(); // Normalize comment text
 
-<<<<<<< HEAD
-                                // Check if the comment contains "yana"
-                                if (commentText === "yana") {
-                                    try {
-                                       // const message = "test is completed";
-                                        //console.log(message);
-                                        
-                                        await sendDirectMessage(commenterId, message);
-                                        console.log(`Message sent to user ID ${commenterId}`);
-                                    } catch (error) {
-                                        console.error('Error sending DM:', error.response?.data || error.message);
-                                    }
-                                } else {
-                                    console.log(`Comment does not contain "yana". Skipping DM.`);
-                                } 
-                            }
-                        });
-                    } else {
-                        console.warn('Changes array is missing or invalid in the entry:', entry);
-                    }
-                });
-            } else {
-                console.warn('Entry array is missing or invalid in the payload:', body);
-=======
                 // Check if the comment contains "yana"
                 if (commentText === "yana") {
                   const message = "Test is completed";
@@ -95,7 +71,6 @@ app.post("/webhook", async (req, res) => {
                   console.log(`Comment does not contain 'yana'. Skipping DM.`);
                 }
               }
->>>>>>> e9ba9579bf92b42681c21a76a417875cbe8d1779
             }
           } else {
             console.warn("Changes array is missing or invalid in the entry:", entry);
