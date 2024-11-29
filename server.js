@@ -5,7 +5,7 @@ const axios = require('axios'); // Add axios for API requests
 
 const app = express();
 const VERIFY_TOKEN = "autodmtoken"; // Your webhook verification token
-const ACCESS_TOKEN = "IGQWRNeEtIb0lfbWN3WEFsa0F0cDN5ZA3pFLWxWZAmFYNFZAzb2dCNTZA2SHBzNjZAYdU8wMlZAPOFY3SUZAEN1g1cWRaUTdhVS1uSUVkSWNSOThnUUJMZAEJtUW16bG5zNnZApOS1qalhqLXRrWnVucE1KNlVGVDJLZAHFYeG8ZD"; // Your Instagram long-lived access token
+const ACCESS_TOKEN = "IGQWRPZAzFSZATVQMlI0STZAFVjBxQVc0YUI3U0hOS0w0TEM4QVRYTXJpbWFKNVlCNkxsR1hhd2dCYk05OHcyZAGV5Q3dwUVoxNzVST0lESDZAhTkphSmRMWnpOYndIM21ZASzM1c3ZAqbGxuWkRUUnphT1VCMjR4NUx3SUUZD"; // Your Instagram long-lived access token
 
 app.use(bodyParser.json());
 
