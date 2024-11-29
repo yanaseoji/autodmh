@@ -5,7 +5,7 @@ const axios = require("axios");
 
 const app = express();
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "autodmtoken"; // Use environment variables for security
-const ACCESS_TOKEN = process.env.ACCESS_TOKEN || "IGQWRNcDVkZA3FEcEhiVE1XdlR1YTg0Y3NWNUJRaW1peWZARSDRkV1JsT3g5TVFUVG1wbnNuV00yVVhRR0laY0IzRnMtb0c2aGRBblpqcjE2XzVETXRxbjBqYzV3UnBOYWZANZAWtTNjdKSGprZA19xdjBKSEF2eWtPTUUZD"; // Use environment variables
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN || "1086087359734973|Vm_7l2_l2VtGCCwnZjNsHjmo-iE"; // Use environment variables
 
 app.use(bodyParser.json());
 
