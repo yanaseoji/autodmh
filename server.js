@@ -149,6 +149,12 @@ app.get("/privacy-policy", (req, res) => {
   res.sendFile(path.join(__dirname, "privacy-policy.html")); // Serve the privacy policy HTML file
 });
 
+// terms-service Route
+app.get("/terms-service", (req, res) => {
+  res.sendFile(path.join(__dirname, "privacy-policy.html")); // Serve the privacy policy HTML file
+});
+
+
 // Start the Server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
