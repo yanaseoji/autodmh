@@ -157,10 +157,7 @@ app.get("/terms-service", (req, res) => {
 });
 
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 9e1f81292d1265722bb1b4c546523bfe34bd95a4
 // Start the Server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
