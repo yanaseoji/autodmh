@@ -131,6 +131,7 @@ async function sendDirectMessage(userId, message) {
   const apiUrl = `https://graph.facebook.com/v21.0/${userId}/messages?appsecret_proof=${appSecretProof}`;
 
   try {
+    console.log("Using Access Token:", ACCESS_TOKEN);
     console.log(`Sending message to User ID: ${userId}`);
     const response = await axios.post(
       apiUrl,
