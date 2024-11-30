@@ -2,14 +2,21 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const axios = require("axios");
+const crypto = require("crypto");
 
 const app = express();
-const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "autodmtoken"; // Environment variable for security
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "autodmtoken"; // Secure token for webhook verification
 const ACCESS_TOKEN =
   process.env.ACCESS_TOKEN ||
-  "EAAPbymtFpL0BOwJ5Mo1uIRUOwLUsHUlbwx39bfpp4nnaTfLp0i0vjzkZCEqz8AhJwEKMqx3twwiDZA9tQEYZAWEeZAPMipbI6YPTtC5lOI4vPivQze8HgZBMpoTiem4RvsS7jjMm91w0SWhLXLk2y3Am1mJnutXWLT7T3FmtwPRwY6zw6VhHmGiRPkAZDZD"; // Use secure storage
+  "EAAPbymtFpL0BOwJ5Mo1uIRUOwLUsHUlbwx39bfpp4nnaTfLp0i0vjzkZCEqz8AhJwEKMqx3twwiDZA9tQEYZAWEeZAPMipbI6YPTtC5lOI4vPivQze8HgZBMpoTiem4RvsS7jjMm91w0SWhLXLk2y3Am1mJnutXWLT7T3FmtwPRwY6zw6VhHmGiRPkAZDZD"; // Replace with secure storage (e.g., environment variables)
+const APP_SECRET = process.env.APP_SECRET || "4f4735aba861bd81bd9c1a1f4e833041"; // Add your App Secret
 
 app.use(bodyParser.json());
+
+// Function to generate appsecret_proof
+function generateAppSecretProof(accessToken, appSecret) {
+  return crypto.createHmac("sha256", appSecret).update(accessToken).digest("hex");
+}
 
 // Default Route
 app.get("/", (req, res) => {
@@ -90,7 +97,6 @@ app.post("/webhook", async (req, res) => {
       }
       res.status(200).send("EVENT_RECEIVED");
     } else if (body.object === "page") {
-      // Handle Messenger-related events
       if (Array.isArray(body.entry)) {
         for (const entry of body.entry) {
           if (entry.messaging && Array.isArray(entry.messaging)) {
@@ -121,7 +127,8 @@ app.post("/webhook", async (req, res) => {
 
 // Function to Send a Direct Message
 async function sendDirectMessage(userId, message) {
-  const apiUrl = `https://graph.facebook.com/v21.0/${userId}/messages`;
+  const appSecretProof = generateAppSecretProof(ACCESS_TOKEN, APP_SECRET);
+  const apiUrl = `https://graph.facebook.com/v21.0/${userId}/messages?appsecret_proof=${appSecretProof}`;
 
   try {
     console.log(`Sending message to User ID: ${userId}`);
@@ -141,7 +148,6 @@ async function sendDirectMessage(userId, message) {
     console.log("DM Sent Response:", response.data);
   } catch (error) {
     console.error("Error Sending DM:", error.response?.data || error.message);
-    console.error("Error Status Code:", error.response?.status || "Unknown");
     throw new Error(error.response?.data || error.message);
   }
 }
@@ -150,13 +156,6 @@ async function sendDirectMessage(userId, message) {
 app.get("/privacy-policy", (req, res) => {
   res.sendFile(path.join(__dirname, "privacy-policy.html")); // Serve the privacy policy HTML file
 });
-
-// terms-service Route
-app.get("/terms-service", (req, res) => {
-  res.sendFile(path.join(__dirname, "terms-service.html")); // Serve the privacy policy HTML file
-});
-
-
 
 // Start the Server
 const PORT = process.env.PORT || 3000;
