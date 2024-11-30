@@ -5,11 +5,16 @@ const axios = require("axios");
 const crypto = require("crypto");
 
 const app = express();
+require("dotenv").config(); // Load environment variables from a .env file
+
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "autodmtoken"; // Secure token for webhook verification
-const ACCESS_TOKEN =
-  process.env.ACCESS_TOKEN ||
-  "IGQWRNWi14ZA194UHhKVUh2MldRTkZAWNHp3QnMzRkNGaHFvc296ejZAObC1hNmdmcWl5TEVybmdBeE9nWjJsWFdRUFZA1cFFzNkQ5b0VKT1JGUUc4YVotLUNsQ2lBeDlHOUhMTk11R1dlY1pDdzlEMmVKdHdrbGdfVUkZD"; // Replace with secure storage (e.g., environment variables)
-const APP_SECRET = process.env.APP_SECRET || "9f2ecb91b5d2f79b6627bb779c19501a"; // Add your App Secret
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN; // Store the token in environment variables
+const APP_SECRET = process.env.APP_SECRET; // Store the app secret securely
+
+if (!ACCESS_TOKEN || !APP_SECRET) {
+  console.error("ACCESS_TOKEN or APP_SECRET is missing. Please configure .env file.");
+  process.exit(1);
+}
 
 app.use(bodyParser.json());
 
@@ -40,18 +45,6 @@ app.get("/webhook", (req, res) => {
   } else {
     console.error("Webhook verification request is missing required parameters.");
     res.sendStatus(400); // Bad Request
-  }
-});
-
-// Callback Route for Business Login
-app.get("/callback", (req, res) => {
-  const code = req.query.code; // Extract the 'code' from the query parameters
-  if (code) {
-    console.log(`Business login successful. Code: ${code}`);
-    res.status(200).send("Business login successful!");
-  } else {
-    console.error("No code provided in the callback.");
-    res.status(400).send("No code provided");
   }
 });
 
@@ -131,7 +124,7 @@ async function sendDirectMessage(userId, message) {
   const apiUrl = `https://graph.facebook.com/v21.0/${userId}/messages?appsecret_proof=${appSecretProof}`;
 
   try {
-    console.log("Using Access Token:", ACCESS_TOKEN);
+    console.log("Using Access Token (Partial):", ACCESS_TOKEN.slice(0, 10) + "...");
     console.log(`Sending message to User ID: ${userId}`);
     const response = await axios.post(
       apiUrl,
