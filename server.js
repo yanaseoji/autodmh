@@ -8,7 +8,7 @@ const app = express();
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "autodmtoken"; // Secure token for webhook verification
 const ACCESS_TOKEN =
   process.env.ACCESS_TOKEN ||
-  "IGQWRPMkpXTHYwUW5oa212R0YtaHpKYnhXdmp4dldIMUptWUxvR2R5MGlqd0Q4S01xbFNzYWowOXNlUWlsal96M09hcGo1ZA0ZAQVm80U25Sa2JZATEVkQjlWWkV6YVhPOFRGSU9sY0JWSGgwYXpjQWROdDNjTFB0QVEZD"; // Replace with secure storage (e.g., environment variables)
+  "IGQWRQY25GX1d0STk4SnYzdmZASdER5UUZAnMHp3QjFtMXg1LTRfODJyUWdJRWEyOEJNX3dIbU1lYmxCa3hrT3p4V3puMWZAnWFV6QUdLQWR0T3ZAhalJ3SGEtVTVJclJabzVUSkFZAOE5MRTdJMWxyUUVFUWFONV9CSkkZD"; // Replace with secure storage (e.g., environment variables)
 const APP_SECRET = process.env.APP_SECRET || "9f2ecb91b5d2f79b6627bb779c19501a"; // Add your App Secret
 
 app.use(bodyParser.json());
