@@ -9,7 +9,7 @@ const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "autodmtoken"; // Secure token 
 const ACCESS_TOKEN =
   process.env.ACCESS_TOKEN ||
   "EAAPbymtFpL0BOwJ5Mo1uIRUOwLUsHUlbwx39bfpp4nnaTfLp0i0vjzkZCEqz8AhJwEKMqx3twwiDZA9tQEYZAWEeZAPMipbI6YPTtC5lOI4vPivQze8HgZBMpoTiem4RvsS7jjMm91w0SWhLXLk2y3Am1mJnutXWLT7T3FmtwPRwY6zw6VhHmGiRPkAZDZD"; // Replace with secure storage (e.g., environment variables)
-const APP_SECRET = process.env.APP_SECRET || "4f4735aba861bd81bd9c1a1f4e833041"; // Add your App Secret
+const APP_SECRET = process.env.APP_SECRET || "9f2ecb91b5d2f79b6627bb779c19501a"; // Add your App Secret
 
 app.use(bodyParser.json());
 
