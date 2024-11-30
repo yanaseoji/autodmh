@@ -151,7 +151,7 @@ app.get("/privacy-policy", (req, res) => {
 
 // terms-service Route
 app.get("/terms-service", (req, res) => {
-  res.sendFile(path.join(__dirname, "privacy-policy.html")); // Serve the privacy policy HTML file
+  res.sendFile(path.join(__dirname, "terms-service.html")); // Serve the privacy policy HTML file
 });
 
 
