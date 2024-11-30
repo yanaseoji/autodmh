@@ -4,8 +4,10 @@ const path = require("path");
 const axios = require("axios");
 
 const app = express();
-const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "autodmtoken"; // Use environment variables for security
-const ACCESS_TOKEN = process.env.ACCESS_TOKEN || "EAAPbymtFpL0BOwBDscCSSvGkeK9hOu2iDyRZApUvzfuVni7dqr8ZCz98THAJT4Ni2sLehBOOXwVz7HTgUYmg8MkcRivGSKimQHUoI40W00B8gUCgL3ZBnevbJ3XaeB8XkZBKpmBsFNIDZBX2n92Q5ZB58hucEet2nk4ZCb7zwVqtt0tb7rmuNsJkxaUxwZDZD"; // Use environment variables
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "autodmtoken"; // Environment variable for security
+const ACCESS_TOKEN =
+  process.env.ACCESS_TOKEN ||
+  "EAAPbymtFpL0BOwJ5Mo1uIRUOwLUsHUlbwx39bfpp4nnaTfLp0i0vjzkZCEqz8AhJwEKMqx3twwiDZA9tQEYZAWEeZAPMipbI6YPTtC5lOI4vPivQze8HgZBMpoTiem4RvsS7jjMm91w0SWhLXLk2y3Am1mJnutXWLT7T3FmtwPRwY6zw6VhHmGiRPkAZDZD"; // Use secure storage
 
 app.use(bodyParser.json());
 
@@ -47,74 +49,75 @@ app.get("/callback", (req, res) => {
 });
 
 // Webhook Event Handling Route
-app.post('/webhook', async (req, res) => {
-    const body = req.body;
+app.post("/webhook", async (req, res) => {
+  const body = req.body;
 
-    try {
-        if (body.object === 'instagram') {
-            // Handle Instagram-related events
-            if (Array.isArray(body.entry)) {
-                body.entry.forEach(async (entry) => {
-                    if (entry.changes && Array.isArray(entry.changes)) {
-                        entry.changes.forEach(async (change) => {
-                            if (change.field === 'comments' && change.value) {
-                                console.log('New Instagram Comment:', change.value);
+  try {
+    if (body.object === "instagram") {
+      if (Array.isArray(body.entry)) {
+        for (const entry of body.entry) {
+          if (entry.changes && Array.isArray(entry.changes)) {
+            for (const change of entry.changes) {
+              if (change.field === "comments" && change.value) {
+                console.log("New Instagram Comment:", change.value);
 
-                                const commenterId = change.value.from?.id; // Safely access commenter ID
-                                const commentText = change.value.text?.toLowerCase(); // Normalize text
+                const commenterId = change.value.from?.id; // Safely access commenter ID
+                const commentText = change.value.text?.toLowerCase(); // Normalize text
 
-                                // Check if the comment contains "yana"
-                                if (commentText === "yana") {
-                                    try {
-                                        const message = "test is completed";
-                                        await sendDirectMessage(commenterId, message);
-                                        console.log(`Message sent to user ID ${commenterId}`);
-                                    } catch (error) {
-                                        console.error('Error sending DM:', error.response?.data || error.message);
-                                    }
-                                } else {
-                                    console.log(`Comment does not contain "yana". Skipping DM.`);
-                                }
-                            }
-                        });
-                    } else {
-                        console.warn('Changes array is missing or invalid in the entry:', entry);
+                if (commentText === "yana") {
+                  if (commenterId) {
+                    try {
+                      const message = "Test is completed";
+                      await sendDirectMessage(commenterId, message);
+                      console.log(`Message sent to user ID ${commenterId}`);
+                    } catch (error) {
+                      console.error("Error sending DM:", error.response?.data || error.message);
                     }
-                });
-            } else {
-                console.warn('Entry array is missing or invalid in the payload:', body);
+                  } else {
+                    console.warn("Commenter ID is missing. Cannot send DM.");
+                  }
+                } else {
+                  console.log(`Comment does not contain "yana". Skipping DM.`);
+                }
+              }
             }
-            res.status(200).send('EVENT_RECEIVED');
-        } else if (body.object === 'page') {
-            // Handle Messenger-related events
-            if (Array.isArray(body.entry)) {
-                body.entry.forEach((entry) => {
-                    if (entry.messaging && Array.isArray(entry.messaging)) {
-                        entry.messaging.forEach((event) => {
-                            if (event.read) {
-                                console.log('Read Event:', event.read);
-                            } else if (event.message) {
-                                console.log('Message Event:', event.message);
-                            } else {
-                                console.log('Unhandled Messenger Event:', event);
-                            }
-                        });
-                    } else {
-                        console.warn('Messaging array is missing or invalid in the entry:', entry);
-                    }
-                });
-            }
-            res.status(200).send('EVENT_RECEIVED');
-        } else {
-            console.warn('Unhandled object type:', body.object);
-            res.status(404).send('Unhandled object type');
+          } else {
+            console.warn("Changes array is missing or invalid in the entry:", entry);
+          }
         }
-    } catch (error) {
-        console.error('Unhandled Error:', error.message, error.stack);
-        res.status(500).send('Internal Server Error');
+      } else {
+        console.warn("Entry array is missing or invalid in the payload:", body);
+      }
+      res.status(200).send("EVENT_RECEIVED");
+    } else if (body.object === "page") {
+      // Handle Messenger-related events
+      if (Array.isArray(body.entry)) {
+        for (const entry of body.entry) {
+          if (entry.messaging && Array.isArray(entry.messaging)) {
+            for (const event of entry.messaging) {
+              if (event.read) {
+                console.log("Read Event:", event.read);
+              } else if (event.message) {
+                console.log("Message Event:", event.message);
+              } else {
+                console.log("Unhandled Messenger Event:", event);
+              }
+            }
+          } else {
+            console.warn("Messaging array is missing or invalid in the entry:", entry);
+          }
+        }
+      }
+      res.status(200).send("EVENT_RECEIVED");
+    } else {
+      console.warn("Unhandled object type:", body.object);
+      res.status(404).send("Unhandled object type");
     }
+  } catch (error) {
+    console.error("Unhandled Error:", error.message, error.stack);
+    res.status(500).send("Internal Server Error");
+  }
 });
-
 
 // Function to Send a Direct Message
 async function sendDirectMessage(userId, message) {
@@ -130,9 +133,8 @@ async function sendDirectMessage(userId, message) {
       },
       {
         headers: {
-            // Authorization: `Bearer ${ACCESS_TOKEN}`,
-             "Authorization": ACCESS_TOKEN,
-            "Content-Type": "application/json",
+          Authorization: `Bearer ${ACCESS_TOKEN}`,
+          "Content-Type": "application/json",
         },
       }
     );
@@ -148,6 +150,13 @@ async function sendDirectMessage(userId, message) {
 app.get("/privacy-policy", (req, res) => {
   res.sendFile(path.join(__dirname, "privacy-policy.html")); // Serve the privacy policy HTML file
 });
+
+// terms-service Route
+app.get("/terms-service", (req, res) => {
+  res.sendFile(path.join(__dirname, "terms-service.html")); // Serve the privacy policy HTML file
+});
+
+
 
 // Start the Server
 const PORT = process.env.PORT || 3000;
