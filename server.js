@@ -6,6 +6,9 @@ const crypto = require("crypto");
 
 const app = express();
 require("dotenv").config(); // Load environment variables from a .env file
+// Log to check if environment variables are loaded
+console.log("ACCESS_TOKEN:", process.env.ACCESS_TOKEN ? "Loaded" : "Missing");
+console.log("APP_SECRET:", process.env.APP_SECRET ? "Loaded" : "Missing");
 
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "autodmtoken"; // Secure token for webhook verification
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN; // Store the token in environment variables
