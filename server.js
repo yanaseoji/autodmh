@@ -130,6 +130,7 @@ async function sendDirectMessage(userId, message) {
 
   try {
     console.log("Using Access Token (Partial):", ACCESS_TOKEN.slice(0, 10) + "...");
+    console.log("App Secret Proof:", appSecretProof);
     console.log(`Sending message to User ID: ${userId}`);
     const response = await axios.post(
       apiUrl,
